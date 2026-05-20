@@ -2,14 +2,14 @@ import streamlit as st
 import pandas as pd
 from datetime import datetime
 
-# 1. 페이지 기본 설정 및 타이틀 (파이썬 에러 방지를 위해 전용 함수 사용)
+# 1. 페이지 기본 설정 및 타이틀
 st.set_page_config(page_title="나만의 오운완 일지", page_icon="🏋️‍♂️", layout="centered")
 
 # 2. 데이터 저장소 준비 (세션 상태에 기록 저장)
 if "workout_records" not in st.session_state:
     st.session_state.workout_records = []
 
-# 3. 화면을 예쁘게 꾸며줄 스타일 지정 (CSS)
+# 3. 화면 스타일 지정 (CSS)
 st.markdown("""
     <style>
     .main-header {
@@ -64,12 +64,11 @@ with st.form("workout_form", clear_on_submit=True):
     
     submit_button = st.form_submit_button("오운완 인증하기 💥", use_container_width=True)
 
-# 5. 등록 버튼을 눌렀을 때 실행되는 로직
+# 5. 등록 버튼 로직
 if submit_button:
     if not content.strip():
         st.error("오늘 어떤 운동을 했는지 내용을 입력해주세요!")
     else:
-        # 사진 파일이 있으면 바이트 데이터로 읽기
         photo_bytes = photo_file.read() if photo_file is not None else None
             
         new_record = {
@@ -80,12 +79,11 @@ if submit_button:
             "photo": photo_bytes
         }
         
-        # 최신 기록이 맨 위로 오도록 리스트 맨 앞에 삽입
         st.session_state.workout_records.insert(0, new_record)
         st.success("오늘의 오운완 기록 완료! 💪")
         st.rerun()
 
-# 6. 저장된 기록 리스트 보여주기
+# 6. 저장된 기록 리스트 출력
 st.markdown(f"### 나의 오운완 히스토리 (총 {len(st.session_state.workout_records)}회)", unsafe_allow_html=True)
 
 if not st.session_state.workout_records:
@@ -97,7 +95,6 @@ if not st.session_state.workout_records:
     """, unsafe_allow_html=True)
 else:
     for idx, rec in enumerate(st.session_state.workout_records):
-        # 카드 디자인 출력
         st.markdown(f"""
             <div class="record-card">
                 <span class="badge">{rec['part']}</span>
@@ -106,9 +103,11 @@ else:
             </div>
         """, unsafe_allow_html=True)
         
-        # 이미지가 첨부되어 있다면 표시
         if rec['photo']:
             st.image(rec['photo'], use_container_width=True)
             
-        # 삭제 버튼
-        if st.button("기록 삭제", key=f"del_{rec['id']}_{
+        # ⚠️ 에러 났던 { 오타 부분을 깔끔하게 수정했습니다!
+        if st.button("기록 삭제", key=f"del_{idx}"):
+            st.session_state.workout_records.remove(rec)
+            st.success("기록이 삭제되었습니다.")
+            st.rerun()
